@@ -46,6 +46,7 @@ import { ChecklistListComponentModule } from './ui/checklist-list/checklist-list
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
+  // use observable so that it works with ChangeDetectionStrategy.OnPush maybe
   formModalIsOpen$ = new BehaviorSubject<boolean>(false);
   checklists$ = this.checklistService.getChecklists();
 

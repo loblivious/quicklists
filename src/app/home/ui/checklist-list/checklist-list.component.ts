@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { Checklist } from 'src/app/shared/interfaces/Checklist';
+import { Checklist } from 'src/app/shared/interfaces/checklist';
 
 @Component({
   selector: 'app-checklist-list',

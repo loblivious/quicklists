@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, filter, map } from 'rxjs';
-import { AddChecklist, Checklist } from '../interfaces/Checklist';
+import { AddChecklist, Checklist } from '../interfaces/checklist';
 
 @Injectable({
   providedIn: 'root',
