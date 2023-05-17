@@ -30,6 +30,13 @@ export class AppComponent {}
         redirectTo: 'home',
         pathMatch: 'full',
       },
+      {
+        path: 'checklist/:id',
+        loadChildren: () =>
+          import('./checklist/checklist.component').then(
+            (m) => m.ChecklistComponentModule
+          ),
+      },
     ]),
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
