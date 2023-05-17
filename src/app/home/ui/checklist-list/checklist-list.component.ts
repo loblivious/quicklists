@@ -5,6 +5,7 @@ import {
   Input,
   NgModule,
 } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { Checklist } from 'src/app/shared/interfaces/Checklist';
 
@@ -12,7 +13,12 @@ import { Checklist } from 'src/app/shared/interfaces/Checklist';
   selector: 'app-checklist-list',
   template: `
     <ion-list lines="none">
-      <ion-item *ngFor="let checklist of checklists; trackBy: trackByFn">
+      <ion-item
+        *ngFor="let checklist of checklists; trackBy: trackByFn"
+        button
+        routerLink="/checklist/{{ checklist.id }}"
+        routerDirection="forward"
+      >
         <ion-label>{{ checklist.title }}</ion-label>
       </ion-item>
     </ion-list>
@@ -29,7 +35,7 @@ export class ChecklistListComponent {
 
 @NgModule({
   declarations: [ChecklistListComponent],
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, RouterModule],
   exports: [ChecklistListComponent],
 })
 export class ChecklistListComponentModule {}

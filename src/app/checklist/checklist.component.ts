@@ -3,13 +3,19 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { ChecklistService } from '../shared/data-access/checklist.service';
 import { switchMap } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-checklist',
   template: `
     <ion-header>
       <ion-toolbar>
-        <ion-title>Checklist</ion-title>
+        <ion-buttons slot="start">
+          <ion-back-button defaultHref="/"></ion-back-button>
+        </ion-buttons>
+        <ion-title *ngIf="checklist$ | async as checklist">
+          {{ checklist.title }}
+        </ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content> </ion-content>
@@ -32,6 +38,7 @@ export class ChecklistComponent {
 @NgModule({
   declarations: [ChecklistComponent],
   imports: [
+    CommonModule,
     IonicModule,
     RouterModule.forChild([
       {
