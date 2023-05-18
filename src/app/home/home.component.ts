@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, NgModule } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
-import { FormModalComponentModule } from '../shared/ui/form-modal.component';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ChecklistService } from '../shared/data-access/checklist.service';
+import { FormModalComponentModule } from '../shared/ui/form-modal.component';
 import { ChecklistListComponentModule } from './ui/checklist-list/checklist-list.component';
 
 @Component({

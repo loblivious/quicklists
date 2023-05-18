@@ -3,22 +3,17 @@ import { ChangeDetectionStrategy, Component, NgModule } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { BehaviorSubject, combineLatest, filter, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, map, switchMap } from 'rxjs';
 import { ChecklistService } from '../shared/data-access/checklist.service';
+import { Checklist } from '../shared/interfaces/checklist';
 import { FormModalComponentModule } from '../shared/ui/form-modal.component';
 import { ChecklistItemService } from './data-access/checklist-item.service';
 import { ChecklistItemListComponentModule } from './ui/checklist-item-list/checklist-item-list.component';
-import { Checklist } from '../shared/interfaces/checklist';
 
 @Component({
   selector: 'app-checklist',
   template: `
-    <ng-container
-      *ngIf="{
-        checklist: (checklist$ | async)!,
-        formModalIsOpen: (formModalIsOpen$ | async)!
-      } as vm"
-    >
+    <ng-container *ngIf="vm$ | async as vm">
       <ion-header>
         <ion-toolbar>
           <ion-buttons slot="start">
@@ -35,7 +30,9 @@ import { Checklist } from '../shared/interfaces/checklist';
         </ion-toolbar>
       </ion-header>
       <ion-content>
-        <app-checklist-item-list [checklistItems]=""></app-checklist-item-list>
+        <app-checklist-item-list
+          [checklistItems]="vm.items"
+        ></app-checklist-item-list>
         <ion-modal
           [isOpen]="vm.formModalIsOpen"
           [canDismiss]="true"
@@ -67,8 +64,15 @@ export class ChecklistComponent {
       ])
     )
   );
-
   formModalIsOpen$ = new BehaviorSubject<boolean>(false);
+
+  vm$ = combineLatest([this.checklistAndItems$, this.formModalIsOpen$]).pipe(
+    map(([[checklist, items], formModalIsOpen]) => ({
+      checklist,
+      items,
+      formModalIsOpen,
+    }))
+  );
 
   checklistItemForm = this.fb.nonNullable.group({
     title: ['', Validators.required],

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, filter, map } from 'rxjs';
+import { BehaviorSubject, Observable, map } from 'rxjs';
 import {
   AddChecklistItem,
   ChecklistItem,
