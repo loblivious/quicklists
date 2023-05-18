@@ -14,14 +14,28 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
   selector: 'app-checklist-item-list',
   template: `
     <ion-list lines="none">
-      <ion-item *ngFor="let item of checklistItems; trackBy: trackByFn">
-        <ion-checkbox
-          (ionChange)="toggle.emit(item.id)"
-          [checked]="item.checked"
-          justify="space-between"
-          >{{ item.title }}</ion-checkbox
-        >
-      </ion-item>
+      <ion-item-sliding
+        slot="end"
+        *ngFor="let item of checklistItems; trackBy: trackByFn"
+      >
+        <ion-item color="secondary">
+          <ion-checkbox
+            (ionChange)="toggle.emit(item.id)"
+            [checked]="item.checked"
+            justify="space-between"
+            >{{ item.title }}</ion-checkbox
+          >
+        </ion-item>
+
+        <ion-item-options>
+          <ion-item-option color="light" (click)="edit.emit(item)">
+            <ion-icon name="pencil-outline" slot="icon-only"></ion-icon>
+          </ion-item-option>
+          <ion-item-option color="danger" (click)="delete.emit(item.id)">
+            <ion-icon name="trash" slot="icon-only"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
     </ion-list>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,6 +43,8 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
 export class ChecklistItemListComponent {
   @Input() checklistItems!: ChecklistItem[];
   @Output() toggle = new EventEmitter<string>();
+  @Output() delete = new EventEmitter<string>();
+  @Output() edit = new EventEmitter<ChecklistItem>();
 
   trackByFn(index: number, item: ChecklistItem) {
     return item.id;

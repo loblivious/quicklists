@@ -36,6 +36,7 @@ import { ChecklistItemListComponentModule } from './ui/checklist-item-list/check
         <app-checklist-item-list
           [checklistItems]="vm.items"
           (toggle)="toggleChecklistItem($event)"
+          (delete)="deleteChecklistItem($event)"
         ></app-checklist-item-list>
         <ion-modal
           [isOpen]="vm.formModalIsOpen"
@@ -102,6 +103,10 @@ export class ChecklistComponent {
 
   resetChecklistItem(checklistId: string) {
     this.checklistItemService.reset(checklistId);
+  }
+
+  deleteChecklistItem(id: string) {
+    this.checklistItemService.remove(id);
   }
 }
 

@@ -10,6 +10,7 @@ import {
 } from 'rxjs';
 import { AddChecklist, Checklist } from '../interfaces/checklist';
 import { StorageService } from './storage.service';
+import { ChecklistItemService } from 'src/app/checklist/data-access/checklist-item.service';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +28,10 @@ export class ChecklistService {
     shareReplay(1)
   );
 
-  constructor(private storageService: StorageService) {}
+  constructor(
+    private storageService: StorageService,
+    private checklistItemService: ChecklistItemService
+  ) {}
 
   load() {
     this.storageService.loadChecklists$
@@ -55,7 +59,26 @@ export class ChecklistService {
     this.checklists$.next([...this.checklists$.value, newChecklist]);
   }
 
-  generateSlug(title: string) {
+  update(id: string, editedData: AddChecklist) {
+    const newChecklists = this.checklists$.value.map((checklist) =>
+      checklist.id === id
+        ? { ...checklist, title: editedData.title }
+        : checklist
+    );
+
+    this.checklists$.next(newChecklists);
+  }
+
+  remove(id: string) {
+    const newChecklists = this.checklists$.value.filter(
+      (checklist) => checklist.id !== id
+    );
+
+    this.checklistItemService.removeAllItemsForChecklist(id);
+    this.checklists$.next(newChecklists);
+  }
+
+  private generateSlug(title: string) {
     // NOTE: This is a simplistic slug generator and will not handle things like special characters.
     let slug = title.toLowerCase().replace(/\s+/g, '-');
     // Check if the slug already exists

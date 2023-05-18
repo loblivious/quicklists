@@ -26,6 +26,7 @@ import { ChecklistListComponentModule } from './ui/checklist-list/checklist-list
       <app-checklist-list
         *ngIf="checklists$ | async as checklists"
         [checklists]="checklists"
+        (delete)="deleteChecklist($event)"
       ></app-checklist-list>
 
       <ion-modal
@@ -61,6 +62,10 @@ export class HomeComponent {
 
   addChecklist() {
     this.checklistService.add(this.checklistForm.getRawValue());
+  }
+
+  deleteChecklist(id: string) {
+    this.checklistService.remove(id);
   }
 }
 
