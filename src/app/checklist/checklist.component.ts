@@ -23,6 +23,9 @@ import { ChecklistItemListComponentModule } from './ui/checklist-item-list/check
             {{ vm.checklist.title }}
           </ion-title>
           <ion-buttons slot="end">
+            <ion-button (click)="resetChecklistItem(vm.checklist.id)">
+              <ion-icon name="refresh" slot="icon-only"></ion-icon>
+            </ion-button>
             <ion-button (click)="formModalIsOpen$.next(true)">
               <ion-icon name="add" slot="icon-only"></ion-icon>
             </ion-button>
@@ -32,6 +35,7 @@ import { ChecklistItemListComponentModule } from './ui/checklist-item-list/check
       <ion-content>
         <app-checklist-item-list
           [checklistItems]="vm.items"
+          (toggle)="toggleChecklistItem($event)"
         ></app-checklist-item-list>
         <ion-modal
           [isOpen]="vm.formModalIsOpen"
@@ -90,6 +94,14 @@ export class ChecklistComponent {
       this.checklistItemForm.getRawValue(),
       checklistId
     );
+  }
+
+  toggleChecklistItem(itemId: string) {
+    this.checklistItemServic.toggle(itemId);
+  }
+
+  resetChecklistItem(checklistId: string) {
+    this.checklistItemServic.reset(checklistId);
   }
 }
 

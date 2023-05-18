@@ -21,6 +21,22 @@ export class ChecklistItemService {
     );
   }
 
+  toggle(itemId: string) {
+    const newItems = this.checklistItems$.value.map((item) =>
+      item.id === itemId ? { ...item, checked: !item.checked } : item
+    );
+    console.log(newItems);
+    this.checklistItems$.next(newItems);
+  }
+
+  reset(checklistId: string) {
+    const newItems = this.checklistItems$.value.map((item) =>
+      item.checklistId === checklistId ? { ...item, checked: false } : item
+    );
+    console.log(newItems);
+    this.checklistItems$.next(newItems);
+  }
+
   add(item: AddChecklistItem, checklistId: string) {
     const newItem = {
       id: Date.now().toString(),
