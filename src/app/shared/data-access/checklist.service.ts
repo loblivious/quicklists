@@ -36,7 +36,7 @@ export class ChecklistService {
   }
 
   getChecklists() {
-    return this.checklists$.asObservable();
+    return this.sharedChecklists$;
   }
 
   getChecklistById(id: string) {
