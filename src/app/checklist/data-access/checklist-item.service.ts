@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, map } from 'rxjs';
+import { BehaviorSubject, Observable, map, take, tap } from 'rxjs';
+import { StorageService } from 'src/app/shared/data-access/storage.service';
 import {
   AddChecklistItem,
   ChecklistItem,
@@ -11,12 +12,19 @@ import {
 export class ChecklistItemService {
   private checklistItems$ = new BehaviorSubject<ChecklistItem[]>([]);
 
+  constructor(private storageService: StorageService) {}
+
+  load() {
+    this.storageService.loadChecklistItems$
+      .pipe(take(1))
+      .subscribe((checklistItems) => this.checklistItems$.next(checklistItems));
+  }
+
   getItemsByChecklistId(checklistId: string): Observable<ChecklistItem[]> {
     return this.checklistItems$.pipe(
-      map((items) =>
-        items.filter(
-          (checklistItem) => checklistItem.checklistId === checklistId
-        )
+      map((items) => items.filter((item) => item.checklistId === checklistId)),
+      tap(() =>
+        this.storageService.saveChecklistItems()
       )
     );
   }
@@ -25,7 +33,7 @@ export class ChecklistItemService {
     const newItems = this.checklistItems$.value.map((item) =>
       item.id === itemId ? { ...item, checked: !item.checked } : item
     );
-    console.log(newItems);
+
     this.checklistItems$.next(newItems);
   }
 
@@ -33,7 +41,7 @@ export class ChecklistItemService {
     const newItems = this.checklistItems$.value.map((item) =>
       item.checklistId === checklistId ? { ...item, checked: false } : item
     );
-    console.log(newItems);
+
     this.checklistItems$.next(newItems);
   }
 

@@ -62,7 +62,7 @@ export class ChecklistComponent {
         this.checklistService
           .getChecklistById(params.get('id') as string)
           .pipe(filter((checklist): checklist is Checklist => !!checklist)),
-        this.checklistItemServic.getItemsByChecklistId(
+        this.checklistItemService.getItemsByChecklistId(
           params.get('id') as string
         ),
       ])
@@ -86,22 +86,22 @@ export class ChecklistComponent {
     private route: ActivatedRoute,
     private checklistService: ChecklistService,
     private fb: FormBuilder,
-    private checklistItemServic: ChecklistItemService
+    private checklistItemService: ChecklistItemService
   ) {}
 
   addChecklistItem(checklistId: string) {
-    this.checklistItemServic.add(
+    this.checklistItemService.add(
       this.checklistItemForm.getRawValue(),
       checklistId
     );
   }
 
   toggleChecklistItem(itemId: string) {
-    this.checklistItemServic.toggle(itemId);
+    this.checklistItemService.toggle(itemId);
   }
 
   resetChecklistItem(checklistId: string) {
-    this.checklistItemServic.reset(checklistId);
+    this.checklistItemService.reset(checklistId);
   }
 }
 

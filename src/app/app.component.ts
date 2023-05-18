@@ -1,7 +1,12 @@
-import { ChangeDetectionStrategy, Component, NgModule } from '@angular/core';
+import { ChangeDetectionStrategy, Component, NgModule, OnInit } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy, RouterModule } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
+import { Drivers } from '@ionic/storage';
+import { IonicStorageModule } from '@ionic/storage-angular';
+import * as CordovaSQLiteDriver from 'localforage-cordovasqlitedriver';
+import { ChecklistService } from './shared/data-access/checklist.service';
+import { ChecklistItemService } from './checklist/data-access/checklist-item.service';
 
 @Component({
   selector: 'app-root',
@@ -12,13 +17,30 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {}
+export class AppComponent implements OnInit {
+  constructor(
+    private checklistService: ChecklistService,
+    private checklistItemService: ChecklistItemService
+  ) {}
+
+  ngOnInit() {
+    this.checklistService.load();
+    this.checklistItemService.load();
+  }
+}
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
+    IonicStorageModule.forRoot({
+      driverOrder: [
+        CordovaSQLiteDriver._driver,
+        Drivers.IndexedDB,
+        Drivers.LocalStorage,
+      ],
+    }),
     RouterModule.forRoot([
       {
         path: 'home',
