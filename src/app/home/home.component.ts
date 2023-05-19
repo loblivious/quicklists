@@ -7,6 +7,7 @@ import { BehaviorSubject } from 'rxjs';
 import { ChecklistService } from '../shared/data-access/checklist.service';
 import { FormModalComponentModule } from '../shared/ui/form-modal.component';
 import { ChecklistListComponentModule } from './ui/checklist-list/checklist-list.component';
+import { Checklist } from '../shared/interfaces/checklist';
 
 @Component({
   selector: 'app-home',
@@ -27,18 +28,31 @@ import { ChecklistListComponentModule } from './ui/checklist-list/checklist-list
         *ngIf="checklists$ | async as checklists"
         [checklists]="checklists"
         (delete)="deleteChecklist($event)"
+        (edit)="openEditModal($event)"
       ></app-checklist-list>
 
       <ion-modal
-        [isOpen]="formModalIsOpen$ | async"
+        *ngIf="{
+          checklistIdBeingEdited: checklistIdBeingEdited$ | async,
+          isOpen: formModalIsOpen$ | async
+        } as vm"
+        [isOpen]="vm.isOpen"
         [canDismiss]="true"
-        (ionModalDidDismiss)="formModalIsOpen$.next(false)"
+        (ionModalDidDismiss)="
+          checklistIdBeingEdited$.next(null); formModalIsOpen$.next(false)
+        "
       >
         <ng-template>
           <app-form-modal
-            title="Create checklist"
+            [title]="
+              vm.checklistIdBeingEdited ? 'Edit checklist' : 'Create checklist'
+            "
             [formGroup]="checklistForm"
-            (save)="addChecklist()"
+            (save)="
+              vm.checklistIdBeingEdited
+                ? editChecklist(vm.checklistIdBeingEdited)
+                : addChecklist()
+            "
           ></app-form-modal>
         </ng-template>
       </ion-modal>
@@ -47,8 +61,10 @@ import { ChecklistListComponentModule } from './ui/checklist-list/checklist-list
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
-  // use observable so that it works with ChangeDetectionStrategy.OnPush maybe
+  // use BehaviorSubject instead of primitive boolean so that it
+  // works with ChangeDetectionStrategy.OnPush maybe
   formModalIsOpen$ = new BehaviorSubject<boolean>(false);
+  checklistIdBeingEdited$ = new BehaviorSubject<string | null>(null);
   checklists$ = this.checklistService.getChecklists();
 
   checklistForm = this.fb.nonNullable.group({
@@ -66,6 +82,18 @@ export class HomeComponent {
 
   deleteChecklist(id: string) {
     this.checklistService.remove(id);
+  }
+
+  editChecklist(id: string) {
+    this.checklistService.update(id, this.checklistForm.getRawValue());
+  }
+
+  openEditModal(checklist: Checklist) {
+    this.checklistForm.patchValue({
+      title: checklist.title,
+    });
+    this.checklistIdBeingEdited$.next(checklist.id);
+    this.formModalIsOpen$.next(true);
   }
 }
 

@@ -36,6 +36,14 @@ import { Checklist } from 'src/app/shared/interfaces/checklist';
           </ion-item-option>
         </ion-item-options>
       </ion-item-sliding>
+      <ion-card *ngIf="checklists.length === 0">
+        <ion-card-header>
+          <h2>Welcome!</h2>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Click the add button to create your first quicklist</p>
+        </ion-card-content>
+      </ion-card>
     </ion-list>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

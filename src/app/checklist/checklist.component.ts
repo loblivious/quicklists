@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { BehaviorSubject, combineLatest, filter, map, switchMap } from 'rxjs';
 import { ChecklistService } from '../shared/data-access/checklist.service';
 import { Checklist } from '../shared/interfaces/checklist';
+import { ChecklistItem } from '../shared/interfaces/checklist-item';
 import { FormModalComponentModule } from '../shared/ui/form-modal.component';
 import { ChecklistItemService } from './data-access/checklist-item.service';
 import { ChecklistItemListComponentModule } from './ui/checklist-item-list/checklist-item-list.component';
@@ -37,17 +38,24 @@ import { ChecklistItemListComponentModule } from './ui/checklist-item-list/check
           [checklistItems]="vm.items"
           (toggle)="toggleChecklistItem($event)"
           (delete)="deleteChecklistItem($event)"
+          (edit)="openEditModal($event)"
         ></app-checklist-item-list>
         <ion-modal
           [isOpen]="vm.formModalIsOpen"
           [canDismiss]="true"
-          (ionModalDidDismiss)="formModalIsOpen$.next(false)"
+          (ionModalDidDismiss)="
+            checklistItemIdBeingEdited$.next(null); formModalIsOpen$.next(false)
+          "
         >
           <ng-template>
             <app-form-modal
-              title="Create item"
+              [title]="vm.checklistIdBeingEdited ? 'Edit item' : 'Create item'"
               [formGroup]="checklistItemForm"
-              (save)="addChecklistItem(vm.checklist.id)"
+              (save)="
+                vm.checklistIdBeingEdited
+                  ? editChecklistItem(vm.checklistIdBeingEdited)
+                  : addChecklistItem(vm.checklist.id)
+              "
             ></app-form-modal>
           </ng-template>
         </ion-modal>
@@ -70,12 +78,18 @@ export class ChecklistComponent {
     )
   );
   formModalIsOpen$ = new BehaviorSubject<boolean>(false);
+  checklistItemIdBeingEdited$ = new BehaviorSubject<string | null>(null);
 
-  vm$ = combineLatest([this.checklistAndItems$, this.formModalIsOpen$]).pipe(
-    map(([[checklist, items], formModalIsOpen]) => ({
+  vm$ = combineLatest([
+    this.checklistAndItems$,
+    this.formModalIsOpen$,
+    this.checklistItemIdBeingEdited$,
+  ]).pipe(
+    map(([[checklist, items], formModalIsOpen, checklistIdBeingEdited]) => ({
       checklist,
       items,
       formModalIsOpen,
+      checklistIdBeingEdited,
     }))
   );
 
@@ -107,6 +121,18 @@ export class ChecklistComponent {
 
   deleteChecklistItem(id: string) {
     this.checklistItemService.remove(id);
+  }
+
+  editChecklistItem(id: string) {
+    this.checklistItemService.update(id, this.checklistItemForm.getRawValue());
+  }
+
+  openEditModal(checklistItem: ChecklistItem) {
+    this.checklistItemForm.patchValue({
+      title: checklistItem.title,
+    });
+    this.checklistItemIdBeingEdited$.next(checklistItem.id);
+    this.formModalIsOpen$.next(true);
   }
 }
 
