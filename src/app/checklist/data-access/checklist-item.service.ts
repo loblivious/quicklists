@@ -77,6 +77,7 @@ export class ChecklistItemService {
       (item) => item.checklistId !== checklistId
     );
 
+    this.storageService.saveChecklistItems(newItems);
     this.checklistItems$.next(newItems);
   }
 }

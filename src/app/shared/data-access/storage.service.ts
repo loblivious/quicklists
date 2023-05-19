@@ -36,17 +36,18 @@ export class StorageService {
     }
   }
 
-  saveChecklistItems(checklistItems: ChecklistItem[]) {
-    if (this.#checklistItemsHasLoaded) {
-      this.storage.set('checklistItems', checklistItems);
-    }
-  }
-
   // saveChecklistItems(checklistItems: ChecklistItem[]) {
   //   if (this.#checklistItemsHasLoaded) {
-  //     this.storage$.pipe(take(1)).subscribe((storage) => {
-  //       storage.set('checklistItems', checklistItems);
-  //     });
+  //     this.storage.set('checklistItems', checklistItems);
   //   }
   // }
+  // The reason we don't use the above method is that we need take(1) to make sure the unsubscription
+
+  saveChecklistItems(checklistItems: ChecklistItem[]) {
+    if (this.#checklistItemsHasLoaded) {
+      this.storage$.pipe(take(1)).subscribe((storage) => {
+        storage.set('checklistItems', checklistItems);
+      });
+    }
+  }
 }
