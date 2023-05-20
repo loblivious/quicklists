@@ -1,9 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, NgModule } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  NgModule,
+  ViewChild,
+} from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
-import { BehaviorSubject, combineLatest, filter, map, switchMap } from 'rxjs';
+import { IonContent, IonRouterOutlet, IonicModule } from '@ionic/angular';
+import {
+  BehaviorSubject,
+  combineLatest,
+  filter,
+  map,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { ChecklistService } from '../shared/data-access/checklist.service';
 import { Checklist } from '../shared/interfaces/checklist';
 import { ChecklistItem } from '../shared/interfaces/checklist-item';
@@ -15,8 +27,8 @@ import { ChecklistItemListComponentModule } from './ui/checklist-item-list/check
   selector: 'app-checklist',
   template: `
     <ng-container *ngIf="vm$ | async as vm">
-      <ion-header>
-        <ion-toolbar>
+      <ion-header class="ion-no-border">
+        <ion-toolbar color="secondary">
           <ion-buttons slot="start">
             <ion-back-button defaultHref="/"></ion-back-button>
           </ion-buttons>
@@ -46,6 +58,7 @@ import { ChecklistItemListComponentModule } from './ui/checklist-item-list/check
           (ionModalDidDismiss)="
             checklistItemIdBeingEdited$.next(null); formModalIsOpen$.next(false)
           "
+          [presentingElement]="routerOutlet.nativeEl"
         >
           <ng-template>
             <app-form-modal
@@ -62,23 +75,62 @@ import { ChecklistItemListComponentModule } from './ui/checklist-item-list/check
       </ion-content>
     </ng-container>
   `,
+  styles: [
+    `
+      ion-item-sliding {
+        background-color: var(--ion-color-light);
+        border-radius: 5px;
+        margin: 10px 0 10px 10px;
+        box-shadow: -2px 4px 4px 0px rgba(235, 68, 90, 0.1);
+        overflow: visible;
+      }
+      ion-item-options {
+        padding-right: 5px;
+      }
+      ion-label {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: var(--ion-color-dark);
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+      ion-item {
+        border-radius: 5px;
+        border-left: 4px solid var(--ion-color-tertiary);
+        padding-right: 5px;
+      }
+      ion-header {
+        background-color: var(--ion-color-primary);
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChecklistComponent {
+  @ViewChild(IonContent) ionContent!: IonContent;
+
+  checklistItemForm = this.fb.nonNullable.group({
+    title: ['', Validators.required],
+  });
+
+  formModalIsOpen$ = new BehaviorSubject<boolean>(false);
+  checklistItemIdBeingEdited$ = new BehaviorSubject<string | null>(null);
   checklistAndItems$ = this.route.paramMap.pipe(
     switchMap((params) =>
       combineLatest([
         this.checklistService
           .getChecklistById(params.get('id') as string)
           .pipe(filter((checklist): checklist is Checklist => !!checklist)),
-        this.checklistItemService.getItemsByChecklistId(
-          params.get('id') as string
-        ),
+        this.checklistItemService
+          .getItemsByChecklistId(params.get('id') as string)
+          .pipe(
+            tap(() => {
+              setTimeout(() => this.ionContent.scrollToBottom(200), 0);
+            })
+          ),
       ])
     )
   );
-  formModalIsOpen$ = new BehaviorSubject<boolean>(false);
-  checklistItemIdBeingEdited$ = new BehaviorSubject<string | null>(null);
 
   vm$ = combineLatest([
     this.checklistAndItems$,
@@ -93,15 +145,12 @@ export class ChecklistComponent {
     }))
   );
 
-  checklistItemForm = this.fb.nonNullable.group({
-    title: ['', Validators.required],
-  });
-
   constructor(
     private route: ActivatedRoute,
     private checklistService: ChecklistService,
+    private checklistItemService: ChecklistItemService,
     private fb: FormBuilder,
-    private checklistItemService: ChecklistItemService
+    public routerOutlet: IonRouterOutlet
   ) {}
 
   addChecklistItem(checklistId: string) {

@@ -6,8 +6,9 @@ import {
   Input,
   NgModule,
   Output,
+  ViewChild,
 } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { IonList, IonicModule } from '@ionic/angular';
 import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
 
 @Component({
@@ -28,7 +29,10 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
         </ion-item>
 
         <ion-item-options>
-          <ion-item-option color="light" (click)="edit.emit(item)">
+          <ion-item-option
+            color="light"
+            (click)="edit.emit(item); closeItems()"
+          >
             <ion-icon name="pencil-outline" slot="icon-only"></ion-icon>
           </ion-item-option>
           <ion-item-option color="danger" (click)="delete.emit(item.id)">
@@ -46,6 +50,15 @@ import { ChecklistItem } from 'src/app/shared/interfaces/checklist-item';
       </ion-card>
     </ion-list>
   `,
+  styles: [
+    `
+      ion-checkbox > label {
+        font-weight: bold;
+        margin: 20px;
+        white-space: normal;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChecklistItemListComponent {
@@ -53,9 +66,14 @@ export class ChecklistItemListComponent {
   @Output() toggle = new EventEmitter<string>();
   @Output() delete = new EventEmitter<string>();
   @Output() edit = new EventEmitter<ChecklistItem>();
+  @ViewChild(IonList) checklistList!: IonList;
 
   trackByFn(index: number, item: ChecklistItem) {
     return item.id;
+  }
+
+  async closeItems() {
+    this.checklistList.closeSlidingItems();
   }
 }
 
