@@ -73,7 +73,7 @@ export class ChecklistItemListComponent {
   }
 
   async closeItems() {
-    this.checklistList.closeSlidingItems();
+    await this.checklistList.closeSlidingItems();
   }
 }
 
